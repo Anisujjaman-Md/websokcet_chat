@@ -3,21 +3,33 @@ from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from .models import Message
 from django.contrib.auth import get_user_model
+from channels.db import database_sync_to_async
+from rest_framework_simplejwt.tokens import AccessToken
+
 
 User = get_user_model()
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = 'chat_%s' % self.room_name
+        token = self.scope['query_string'].decode().split('=')[1]
+        access_token = AccessToken(token)
+        user_id = access_token['user_id']
+        self.user = User.objects.get(id=user_id)
+        if self.user is None:
+            # If authentication fails, reject the connection
+            self.close()
+        
+        else:
+            self.room_name = self.scope['url_route']['kwargs']['room_name']
+            self.room_group_name = 'chat_%s' % self.room_name
 
-        # Join room group
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name,
-            self.channel_name
-        )
+            # Join room group
+            async_to_sync(self.channel_layer.group_add)(
+                self.room_group_name,
+                self.channel_name
+            )
 
-        self.accept()
+            self.accept()
 
     def disconnect(self, close_code):
         # Leave room group
@@ -29,7 +41,7 @@ class ChatConsumer(WebsocketConsumer):
     def receive(self, text_data):
         data = json.loads(text_data)
         message = data['message']
-        sender_id = data['sender_id']
+        sender_id = self.user.id
         receiver_id = data['receiver_id']
 
         # Get the sender and receiver user instances
@@ -53,7 +65,7 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from room group
     def chat_message(self, event):
         message = event['message']
-        sender_id = event['sender_id']
+        sender_id = self.user.id
         receiver_id = event['receiver_id']
 
         # Send message to WebSocket
