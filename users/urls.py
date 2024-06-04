@@ -17,6 +17,6 @@ urlpatterns = [
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
-    #User Details API
+    #User Details API : Need More Update
     path('api/user/', UserDetailView.as_view(), name='user_detail'),
 ]

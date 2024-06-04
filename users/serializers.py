@@ -70,4 +70,4 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ('id', 'username', 'email')
+        exclude = ['password']
