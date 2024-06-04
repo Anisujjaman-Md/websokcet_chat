@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django-related
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+
+# Ignore the virtual environment
+venv/
+env/
+
+
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+
+# Ignore migration files
+**/migrations/
+
+# Ignore pipenv or poetry lock file
+Pipfile.lock
+poetry.lock
+
+# Ignore static files (assumes you use collectstatic to serve static files)
+static/
+
+# Ignore coverage reports
+.coverage
+htmlcov/
+
+# Ignore test database
+*.db
+*.sqlite3
+*.log
+
+# Ignore environment-specific files
+.env
+.env.local
+.env.*.local
+
+# Ignore Docker Compose files
+docker-compose.yml
+docker-compose.override.yml
+
+
+

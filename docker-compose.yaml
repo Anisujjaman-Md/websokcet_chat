@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6378:6379"
+
+  web:
+    build:
+      context: .
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  # flower:
+  #   build:
+  #     context: .
+  #   command: sh -c "which flower && flower -A aws_test_deploy --port=5555"
+  #   ports:
+  #     - "5555:5555"
+  #   depends_on:
+  #     - redis
+
+volumes:
+  pg_data:
