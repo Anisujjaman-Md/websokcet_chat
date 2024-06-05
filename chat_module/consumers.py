@@ -73,3 +73,5 @@ class ChatConsumer(WebsocketConsumer):
             'sender_id': sender_id,
             'receiver_id': receiver_id,
         }))
+        
+        

@@ -15,7 +15,12 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    execute_from_command_line(sys.argv)
+    if len(sys.argv) > 1:
+        # If additional arguments are present, use them
+        execute_from_command_line(sys.argv)
+    else:
+        # If no additional arguments are present, use default 'runserver'
+        execute_from_command_line(['manage.py', 'runserver', '0.0.0.0:80'])
 
 
 if __name__ == '__main__':

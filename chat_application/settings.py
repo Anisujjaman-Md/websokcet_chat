@@ -27,9 +27,31 @@ SECRET_KEY = 'django-insecure-k9!xx7m*%c69rtoeh1+lmp%ep+*gw89d9ci24dm3f0nrst4a-z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*', 'localhost']
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'Accept',
+    'Accept-Encoding',
+    'Authorization',
+    'Content-Type',
+    'DNT',
+    'Origin',
+    'User-Agent',
+    'X-Requested-With',
+    'X-CSRFToken',
+]
 
-
+CSRF_TRUSTED_ORIGINS = ["http://*"]
 # Application definition
 
 INSTALLED_APPS = [
@@ -45,6 +67,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'channels',
+    'corsheaders',
     
     'users',
     'chat_module',
@@ -180,3 +203,6 @@ CHANNEL_LAYERS = {
 
 
 api_settings.UPDATE_LAST_LOGIN = True
+
+# Celery settings
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
