@@ -17,4 +17,3 @@ def mul(x, y):
 def xsum(numbers):
     # Celery recognizes this as the `sum_list_numbers` task
     return sum(numbers)
-
