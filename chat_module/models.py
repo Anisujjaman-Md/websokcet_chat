@@ -16,3 +16,30 @@ class Message(models.Model):
 class Room(models.Model):
     name = models.CharField(max_length=100)
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL)
+
+
+from django.db import models
+from django.conf import settings
+
+
+class ConnectionHistory(models.Model):
+    ONLINE = 'online'
+    OFFLINE = 'offline'
+    STATUS = (
+        (ONLINE, 'On-line'),
+        (OFFLINE, 'Off-line'),
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    device_id = models.CharField(max_length=100, null=True, blank=True)
+    status = models.CharField(
+        max_length=10, choices=STATUS,
+        default=ONLINE
+    )
+    first_login = models.DateTimeField(auto_now_add=True)
+    last_echo = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (("user", "device_id"),)

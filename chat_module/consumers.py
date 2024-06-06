@@ -3,7 +3,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import AccessToken
-from .models import Message
+from .models import ConnectionHistory, Message
 
 User = get_user_model()
 
@@ -12,11 +12,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
-
-        # Authenticate user
         token = self.scope['query_string'].decode().split('=')[1]
         self.user = await self.authenticate_user(token)
-        
+
         if self.user is None:
             await self.close()
         else:
@@ -24,30 +22,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name
             )
+            await self.create_connection_history()
+
             await self.accept()
-            
-            # Notify the group that the user is active
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'user_status',
-                    'message': f'{self.user.username} has connected.',
-                    'user_id': self.user.id,
-                    'status': 'active',
-                }
-            )
+            await self.notify_user_status('online')
 
     async def disconnect(self, close_code):
-        # Notify the group that the user is inactive
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'user_status',
-                'message': f'{self.user.username} has disconnected.',
-                'user_id': self.user.id,
-                'status': 'inactive',
-            }
-        )
+        await self.update_connection_history_status('offline')
+        await self.notify_user_status('offline')
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -55,8 +37,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        message = data['message']
-        receiver_id = data['receiver_id']
+        message = data.get('message')
+        receiver_id = data.get('receiver_id')
         
         sender = self.user
         receiver = await self.get_user(receiver_id)
@@ -74,25 +56,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
     async def chat_message(self, event):
-        message = event['message']
-        sender_id = event['sender_id']
-        receiver_id = event['receiver_id']
-
         await self.send(text_data=json.dumps({
-            'message': message,
-            'sender_id': sender_id,
-            'receiver_id': receiver_id,
+            'message': event['message'],
+            'sender_id': event['sender_id'],
+            'receiver_id': event['receiver_id'],
         }))
 
     async def user_status(self, event):
-        message = event['message']
-        user_id = event['user_id']
-        status = event['status']
-
         await self.send(text_data=json.dumps({
-            'message': message,
-            'user_id': user_id,
-            'status': status,
+            'message': event['message'],
+            'user_id': event['user_id'],
+            'status': event['status'],
         }))
 
     @database_sync_to_async
@@ -115,4 +89,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, sender, receiver, content):
         return Message.objects.create(sender=sender, receiver=receiver, content=content)
 
+    @database_sync_to_async
+    def create_connection_history(self):
+        return ConnectionHistory.objects.create(
+            user=self.user,
+            status=ConnectionHistory.ONLINE
+        )
 
+    @database_sync_to_async
+    def update_connection_history_status(self, status):
+        ConnectionHistory.objects.filter(user=self.user).update(status=status)
+
+    async def notify_user_status(self, status):
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'user_status',
+                'message': f'{self.user.username} has {status}.',
+                'user_id': self.user.id,
+                'status': status,
+            }
+        )
