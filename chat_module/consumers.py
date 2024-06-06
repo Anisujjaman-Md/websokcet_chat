@@ -114,3 +114,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_message(self, sender, receiver, content):
         return Message.objects.create(sender=sender, receiver=receiver, content=content)
+
