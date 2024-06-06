@@ -115,3 +115,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, sender, receiver, content):
         return Message.objects.create(sender=sender, receiver=receiver, content=content)
 
+
