@@ -41,7 +41,7 @@ class ConnectionHistory(models.Model):
 
     class Meta:
         unique_together = (("user", "device_id"),)
-        db_table ='onlone_offline_history'
+        db_table ='online_offline_history'
         ordering = ['user']
         indexes = [
             models.Index(fields=['user']),
