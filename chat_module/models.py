@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 
 class Message(models.Model):
@@ -17,9 +18,6 @@ class Room(models.Model):
     name = models.CharField(max_length=100)
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL)
 
-
-from django.db import models
-from django.conf import settings
 
 
 class ConnectionHistory(models.Model):
@@ -43,3 +41,12 @@ class ConnectionHistory(models.Model):
 
     class Meta:
         unique_together = (("user", "device_id"),)
+        db_table ='onlone_offline_history'
+        ordering = ['user']
+        indexes = [
+            models.Index(fields=['user']),
+            models.Index(fields=['status'])
+        ]
+    
+    def __str__(self):
+        return f'{self.user.username} is : {self.status} in last {self.last_echo}'
