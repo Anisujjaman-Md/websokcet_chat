@@ -7,13 +7,14 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 User = get_user_model()
 
-
 class UserRegistrationViewSet(CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = UserRegistrationSerializer
-
+    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -64,3 +65,7 @@ class UserDetailView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+    @method_decorator(cache_page(1200, key_prefix="my_cache_prefix"))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
