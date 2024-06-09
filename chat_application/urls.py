@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from rest_framework import permissions
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 from chat_module import routing
 
 schema_view = get_schema_view(
@@ -30,8 +31,9 @@ schema_view = get_schema_view(
         contact=openapi.Contact(email="contact@example.com"),
         license=openapi.License(name="BSD License"),
     ),
-    public=True,
-    # permission_classes=(permissions.AllowAny,)
+    public=False,
+    permission_classes=(IsAuthenticated,),
+    authentication_classes=(BasicAuthentication,),
 )
 
 
