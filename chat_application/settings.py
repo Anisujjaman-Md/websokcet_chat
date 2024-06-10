@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'chat_module',
 ]
 
+#Swagger
 SWAGGER_SETTINGS = {
     'USE_SESSION_AUTH': False,
     'SECURITY_DEFINITIONS': {
@@ -101,6 +102,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'chat_application.middleware.RequestLoggerMiddleware'
 ]
 
 ROOT_URLCONF = 'chat_application.urls'
@@ -179,10 +181,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
+
+#Jwt Setting
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5000),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': False,
+    'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
@@ -191,7 +195,7 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
 }
-
+#Webscoket
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -207,7 +211,7 @@ api_settings.UPDATE_LAST_LOGIN = True
 # Celery settings
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 
-
+#Cache
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -216,4 +220,26 @@ CACHES = {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         },
     }
+}
+
+
+#web Socket Logger
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'web.log',  # Replace with the path to your log file
+        },
+    },
+    'loggers': {
+        'django.channels': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
 }

@@ -24,7 +24,7 @@ from chat_module import routing
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Qoutes API",
+        title="Chat API",
         default_version='v1',
         description="Your API Description",
         terms_of_service="https://www.example.com/policies/terms/",
@@ -40,7 +40,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("chat_module.urls")),
-    path('', include("users.urls")),
+    path('api/', include("users.urls")),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('chat/', include(routing.websocket_urlpatterns)),
 ]

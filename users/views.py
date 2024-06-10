@@ -2,13 +2,16 @@ from rest_framework import viewsets, status
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
 from .serializers import CustomTokenObtainPairSerializer, UserDetailSerializer, UserRegistrationSerializer
-from rest_framework import generics, permissions
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from django.core.cache import cache
 
 User = get_user_model()
 
@@ -57,11 +60,32 @@ class CustomTokenObtainPairView(APIView):
                 'is_staff': user.is_staff,
             }
         })
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh_token"]
+            refresh = RefreshToken(refresh_token)
+            refresh.blacklist()
 
+            # Issue a new access token
+            new_access_token = refresh.access_token
+
+            return Response(
+                {
+                    "message": "Logout successful",
+                    "new_access_token": str(new_access_token),
+                },
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                {"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
 class UserDetailView(generics.RetrieveAPIView):
     serializer_class = UserDetailSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
