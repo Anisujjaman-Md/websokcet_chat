@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     
     'users',
     'chat_module',
+    'urls_shortner'
 ]
 
 #Swagger

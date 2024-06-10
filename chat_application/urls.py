@@ -41,6 +41,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("chat_module.urls")),
     path('api/', include("users.urls")),
+    path('', include("urls_shortner.urls")),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('chat/', include(routing.websocket_urlpatterns)),
 ]
