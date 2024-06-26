@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
-from rest_framework import viewsets
 from bs4 import BeautifulSoup
 import requests
 import json
@@ -42,7 +41,7 @@ class URLRedirectView(generics.RetrieveAPIView):
 class ScrapeImageViewSet(APIView):
 
     def get(self, request):
-        url = "https://www.umrlabs.com/"  # Replace with your actual URL or take from request.data
+        url = "https://www.enosisbd.com/"  # Replace with your actual URL or take from request.data
 
         try:
             # Fetch the web page
@@ -52,6 +51,7 @@ class ScrapeImageViewSet(APIView):
 
             # Parse HTML content with BeautifulSoup
             soup = BeautifulSoup(html_content, 'html.parser')
+            print(soup)
 
             # Initialize response data structure
             response_data = {
