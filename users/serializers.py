@@ -72,4 +72,6 @@ class UserDetailSerializer(serializers.ModelSerializer):
         exclude = ['password']
 
 class UserListSerializer(serializers.Serializer):
-    pass
+    class Meta:
+        model = get_user_model()
+        exclude = ['password']
